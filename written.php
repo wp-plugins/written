@@ -599,13 +599,14 @@ function wtt_js_css(){
 	wp_enqueue_style('written_css');
 
 	// Media Upload CSS and JS
+	/*
 	if(function_exists( 'wp_enqueue_media' )){
 	    wp_enqueue_media();
 	}else{
 	    wp_enqueue_style('thickbox');
 	    wp_enqueue_script('media-upload');
 	    wp_enqueue_script('thickbox');
-	}
+	}*/
 	wp_enqueue_script( 'wtt-upload', plugins_url('js/upload.js', __FILE__ ));
 	wp_enqueue_script('wtt-upload');	
 }

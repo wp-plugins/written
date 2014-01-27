@@ -5,7 +5,7 @@ add_action('admin_menu', 'wtt_plugin_settings');
 
 function wtt_plugin_settings() {
 
-    add_menu_page('Written Settings', 'Written Settings', 'activate_plugins', 'written_settings', 'wtt_display_settings');
+	add_menu_page('Written Settings', 'Written Settings', 'activate_plugins', 'written_settings', 'wtt_display_settings');
 
 }
 
@@ -171,7 +171,7 @@ function wtt_display_settings(){
 
 			<tr valign="top">
 				<th scope="row">
-					<label for="wtt_api_key">API Key:</label>
+					<label for="wtt_api_key">Your Written.com API Key:</label>
 				</th>
 				<td>
 					<input type="text" id="wtt_api_key" name="wtt_api_key" value="<?php echo $api_key; ?>" class="regular-text" />
@@ -188,7 +188,7 @@ function wtt_display_settings(){
 				</td>
 			</tr>		
 
-			<tr valign="top">
+			<tr valign="top" style="display: none">
 				<th scope="row">
 					<label for="wtt_bg_color">Background Color:</label>
 				</th>
@@ -197,7 +197,7 @@ function wtt_display_settings(){
 				</td>
 			</tr>	
 
-			<tr valign="top">
+			<tr valign="top" style="display: none">
 				<th scope="row">
 					<label for="wtt_text_color">Text Color:</label>
 				</th>
@@ -206,7 +206,7 @@ function wtt_display_settings(){
 				</td>
 			</tr>	
 			
-			<tr valign="top">
+			<tr valign="top" style="display: none">
 				<th scope="row">
 					<label for="wtt_sec_text_color">Secondary Text Color:</label>
 				</th>
@@ -215,7 +215,7 @@ function wtt_display_settings(){
 				</td>
 			</tr>			
 
-			<tr valign="top">
+			<tr valign="top" style="display: none">
 				<th scope="row">
 					<label for="wtt_primary_color">Primary Color:</label>
 				</th>
@@ -224,7 +224,7 @@ function wtt_display_settings(){
 				</td>
 			</tr>	
 
-			<tr valign="top">
+			<tr valign="top" style="display: none">
 				<th scope="row">
 					<label for="wtt_secondary_color">Secondary Color:</label>
 				</th>
@@ -233,7 +233,7 @@ function wtt_display_settings(){
 				</td>
 			</tr>		
 			
-			<tr valign="top">
+			<tr valign="top" style="display: none">
 				<th scope="row">
 					<label for="wtt_logo_url">Upload Logo:</label>
 				</th>
@@ -245,8 +245,8 @@ function wtt_display_settings(){
 				</td>
 			</tr>					
 			<!-- delete this -->
-			<tr valign="top">
-				<th scope="row">
+			<tr valign="top"  style="display: none">
+				<th scope="row" >
 					<label for="wtt_username">Username:</label>
 				</th>
 				<td>
@@ -255,7 +255,7 @@ function wtt_display_settings(){
 			</tr>
 			<!-- /delete this -->	
 			<!-- delete this -->
-			<tr valign="top">
+			<tr valign="top"  style="display: none">
 				<th scope="row">
 					<label for="wtt_password">Password:</label>
 				</th>
@@ -265,7 +265,7 @@ function wtt_display_settings(){
 			</tr>
 			<!-- /delete this -->		
 			<!-- delete this -->
-			<tr valign="top">
+			<tr valign="top"  style="display: none">
 				<th scope="row">
 					<label for="wtt_total_posts">Total Posts:</label>
 				</th>
@@ -275,7 +275,7 @@ function wtt_display_settings(){
 			</tr>
 			<!-- /delete this -->		
 			<!-- delete this -->
-			<tr valign="top">
+			<tr valign="top"  style="display: none">
 				<th scope="row">
 					<label for="wtt_total_posts_sent">Total Posts Sent:</label>
 				</th>
@@ -285,7 +285,7 @@ function wtt_display_settings(){
 			</tr>
 			<!-- /delete this -->		
 			<!-- delete this -->
-			<tr valign="top">
+			<tr valign="top"  style="display: none">
 				<th scope="row">
 					<label for="wtt_loop">Posts Loop:</label>
 				</th>
@@ -295,7 +295,7 @@ function wtt_display_settings(){
 			</tr>
 			<!-- /delete this -->		
 			<!-- delete this -->
-			<tr valign="top">
+			<tr valign="top"  style="display: none">
 				<th scope="row">
 					<label for="wtt_posts_sent_ok">Posts Success Sent?:</label>
 				</th>
@@ -305,7 +305,7 @@ function wtt_display_settings(){
 			</tr>
 			<!-- /delete this -->	
 			<!-- delete this -->
-			<tr valign="top">
+			<tr valign="top"  style="display: none">
 				<th scope="row">
 					<label for="wtt_plugin_errors">Plugin Errors:</label>
 				</th>
@@ -315,7 +315,7 @@ function wtt_display_settings(){
 			</tr>
 			<!-- /delete this -->
 			<!-- delete this -->
-			<tr valign="top">
+			<tr valign="top"  style="display: none">
 				<th scope="row">
 					<label for="wtt_html_template">HTML Template:</label>
 				</th>
