@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.0.1
+Version: 2.0.2
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -12,17 +12,9 @@ define("WTT_API", "http://app.written.com/", true);
 define("WTT_EMAIL", "api@written.com", true);
 define("WTT_USER", "writtenapi_", true);
 
-include_once(plugin_dir_path( __FILE__ ) . 'written-canonical.php');
-include_once(plugin_dir_path( __FILE__ ) . 'written-crons.php');
 
-include_once(plugin_dir_path( __FILE__ ) . 'written-full.php');
 include_once(plugin_dir_path( __FILE__ ) . 'written-options.php');
 include_once(plugin_dir_path( __FILE__ ) . 'written-xmlrpc.php');
-include_once(plugin_dir_path( __FILE__ ) . 'written-pixel.php');
-
-/* Not currently supporting takeover license */
-
-//include_once('written-takeover.php');
 
 // Let's run the Activation Process
 function wtt_activation() {
@@ -199,7 +191,154 @@ function wtt_restrict_editing_posts( $allcaps, $cap, $args ) {
 }
 add_filter( 'user_has_cap', 'wtt_restrict_editing_posts', 10, 3 );
 
+
+/* Canonical */
+
+remove_action( 'wp_head', 'rel_canonical' );
+add_action( 'wp_head', 'wtt_rel_canonical' );
+function wtt_rel_canonical(){
+// original code
+  if ( !is_singular() )
+    return;
+  global $wp_the_query;
+  if ( !$id = $wp_the_query->get_queried_object_id() )
+    return;
+ 
+  // new code - if there is a meta property defined
+  // use that as the canonical url
+  $canonical = get_post_meta( $id, 'wtt_canonical' );
+  if( !empty($canonical) ) {
+  	foreach($canonical as $canonical_url):
+    	echo "<link rel='canonical' href='$canonical_url' />\n";
+    endforeach;
+    return;
+  }
+ 
+  // original code
+  $link = get_permalink( $id );
+  if ( $page = get_query_var('cpage') )
+    $link = get_comments_pagenum_link( $page );
+  echo "<link rel='canonical' href='$link' />\n";
+	
+}
+
+// WP Header 301 Redirect
+function wtt_redirect_license(){
+	global $post;
+
+	if(is_singular()){
+		$redirect_url = get_post_meta($post->ID, 'wtt_redirect', true);
+		if($redirect_url){ wp_redirect($redirect_url, 301); }
+	}	
+}
+
+add_action('template_redirect', 'wtt_redirect_license');
+
+
+// WP Footer JS Injection for Pixel License
+function wtt_pixel_license_code(){
+	global $post;
+	if(is_singular()){
+		$pixel_code = get_post_meta( $post->ID, 'wtt_pixel_code' );
+
+		if( !empty($pixel_code) ) {
+			foreach($pixel_code as $pixel_code_url):
+				echo $pixel_code_url."\n";
+				//echo "<script type='text/javascript' src='$pixel_code_url'></script>\n";
+			endforeach;
+		}
+	}	
+}
+
 /*
+
+//add_action('wp_footer', 'wtt_pixel_license_code');
+
+// Takeover License Query Vars Set up
+function wtt_parse_request($wp) {
+    // only process requests with "my-plugin=ajax-handler"
+    if (array_key_exists('written', $wp->query_vars) 
+            && $wp->query_vars['written'] === 'takeover') {
+
+		global $post;
+		if(is_singular()){
+			$takeover_code = get_post_meta( $post->ID, 'wtt_takeover_code', TRUE );
+
+			$iframe_code = $takeover_code;
+
+			if( $takeover_code ) {
+				$template = get_option('wtt_html_template');
+
+				$replacements = array(
+					'%wtt_sponsor_by%'=>'Design Hack', 
+					'%wtt_original_article%'=>'#',
+					'%wtt_logo_title%'=>$post->post_title,
+					'%wtt_post_title%'=>$post->post_title,
+					'%wtt_post_date%'=>$post->post_date,
+					'%wtt_post_author%'=>get_the_author_meta( 'user_nicename', $post->post_author),
+					'%wtt_post_content%'=>$post->post_content,
+					'%wtt_written_text%'=>'Written.com',
+					'%wtt_written_url%'=>'http://written.com',
+					'%wtt_sidebar_code%'=>$iframe_code
+				);
+
+				$rendered_template = str_replace(array_keys($replacements), $replacements, $template);
+
+				die($rendered_template);
+			}
+		}
+    }
+}
+
+//add_action('wp', 'wtt_parse_request');
+
+function wtt_query_vars($vars) {
+    $vars[] = 'written';
+    return $vars;
+}
+
+//add_filter('query_vars', 'wtt_query_vars');
+
+
+function wtt_body_class_names($classes) {
+
+	global $post;
+	if(is_singular()){
+		$takeover_code = get_post_meta( $post->ID, 'wtt_takeover_code', TRUE );
+		if( $takeover_code ) {	
+			$classes[] = 'takeover';
+		}
+	}
+	// return the $classes array
+	return $classes;
+}
+
+//add_filter('body_class','wtt_body_class_names');
+
+// WP Footer JS Injection for Takeover License
+function wtt_takeover_license_code(){
+	global $post;
+	if(is_singular()){
+		$takeover_code = get_post_meta( $post->ID, 'wtt_takeover_code', TRUE );
+
+		if( $takeover_code ) {
+
+			echo '<div id="written_ajax"></div><div class="wtt_loader"></div><div class="wtt_overlay_loader"></div>';
+			echo "\n"."<style>"."\n".".wtt_overlay_loader{ z-index:99990;  background-color: #ffffff; width: 100%;  height: 100%;  top: 0;  left: 0;  position: fixed;  overflow:scroll; display:block; }"."\n"."</style>"."\n";
+
+			wp_enqueue_script('wtt_takeover_js',plugins_url('js/wtt_takeover.js', __FILE__),array('jquery'),'',true);
+
+			wp_register_style('wtt_takeover_css', WTT_CSS_TEMPLATE);
+			wp_enqueue_style('wtt_takeover_css');
+
+			wp_register_style('wtt_takeover_dynamic_css', WTT_DYNAMIC_CSS_TEMPLATE);
+			wp_enqueue_style('wtt_takeover_dynamic_css');
+
+		}
+	}	
+}
+
+//add_action('wp_footer', 'wtt_takeover_license_code');
 
 Not sure if this is all needed right now:
 
