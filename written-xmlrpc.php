@@ -3,7 +3,26 @@
 // Let's add new XMLRPC Methods
 add_filter('xmlrpc_methods', 'wtt_xmlrpc_methods');
 
+/*
+methods needed:
+
+- hello world check to see if plugin is installed
+- return total # of posts and pages
+- get all posts/pages (paginated)
+- create post
+- add 301 redirect
+- delete post
+- remove 301 redirect
+- add pixel code
+- remove pixel code
+- get post data (title, content, author)
+- add canonical tag
+- remove canonical tag
+
+*/
+
 function wtt_xmlrpc_methods($methods){
+	$methods['wtt_hello'] = 'wtt_hello';
 	$methods['wtt_get_post'] = 'wtt_get_post';
 	$methods['wtt_create_post'] = 'wtt_create_post';
 	$methods['wtt_edit_post'] = 'wtt_edit_post';
@@ -18,7 +37,25 @@ function wtt_xmlrpc_methods($methods){
 	$methods['wtt_delete_redirect_license'] = 'wtt_delete_redirect_license';
 	$methods['wtt_add_page_license'] = 'wtt_add_page_license';
 	$methods['wtt_delete_page_license'] = 'wtt_delete_page_license';
+	$methods['wtt_get_all_posts'] = 'wtt_get_all_posts';
 	return $methods;
+}
+
+
+function wtt_get_all_posts($args) {
+	$username	= $args[0];
+	$password	= $args[1];
+
+	global $wp_xmlrpc_server;
+
+	// Let's run a check to see if credentials are okay
+	if ( !$user = $wp_xmlrpc_server->login($username, $password) ) {
+		return $wp_xmlrpc_server->error;
+	}
+
+	$posts = get_posts();
+
+	return $posts;
 }
 
 function wtt_get_post($args){
@@ -43,6 +80,23 @@ function wtt_get_post($args){
 	}
 
 }
+
+function wtt_hello($args) {
+	$username = $args[0];
+	$password = $args[1];
+
+	global $wp_xmlrpc_server;
+
+	// Let's run a check to see if credentials are okay
+	if ( !$user = $wp_xmlrpc_server->login($username, $password) ) {
+		return $wp_xmlrpc_server->error;
+	}
+
+	return 'Hello';
+
+
+}
+
 
 function wtt_create_post($args){
 	
