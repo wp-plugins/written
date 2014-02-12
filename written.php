@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.0
+Version: 2.0.1
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -12,13 +12,13 @@ define("WTT_API", "http://app.written.com/", true);
 define("WTT_EMAIL", "api@written.com", true);
 define("WTT_USER", "writtenapi_", true);
 
-include_once('written-canonical.php');
-include_once('written-crons.php');
+include_once(plugin_dir_path( __FILE__ ) . 'written-canonical.php');
+include_once(plugin_dir_path( __FILE__ ) . 'written-crons.php');
 
-include_once('written-full.php');
-include_once('written-options.php');
-include_once('written-xmlrpc.php');
-include_once('written-pixel.php');
+include_once(plugin_dir_path( __FILE__ ) . 'written-full.php');
+include_once(plugin_dir_path( __FILE__ ) . 'written-options.php');
+include_once(plugin_dir_path( __FILE__ ) . 'written-xmlrpc.php');
+include_once(plugin_dir_path( __FILE__ ) . 'written-pixel.php');
 
 /* Not currently supporting takeover license */
 
