@@ -3,20 +3,22 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.0.2
+Version: 2.1
 Author: Written.com
 Author URI: http://www.written.com
 */
 
-define("WTT_API", "http://app.written.com/", true);
+define("WTT_API", "http://writtenapp.co/", true);
 define("WTT_EMAIL", "api@written.com", true);
 define("WTT_USER", "writtenapi_", true);
 
 
-include_once(plugin_dir_path( __FILE__ ) . 'written-options.php');
-include_once(plugin_dir_path( __FILE__ ) . 'written-xmlrpc.php');
-
-// Let's run the Activation Process
+/**
+* This the Written.com activation process.
+* In this activation process, we create a user role called Written User.
+* We also remove any previously added API key.
+* Finally, we redirect the user to the Written options panel upon activation.
+*/
 function wtt_activation() {
 	$result = add_role(
 		'wtt_user',
@@ -40,7 +42,9 @@ function wtt_activation() {
 }
 register_activation_hook(__FILE__, 'wtt_activation');
 
-
+/**
+* This is plugin redirect hook.  If the redirect option is present, the user is redirected and the option is deleted.
+*/
 function wtt_plugin_redirect() {
 
 	if(get_option('wtt_plugin_do_activation_redirect')) {
@@ -50,20 +54,19 @@ function wtt_plugin_redirect() {
 }
 add_action('admin_init', 'wtt_plugin_redirect'); 
 
-// Let's run the Deactivation Process
+/**
+* This is the deactivation process which removes the custom user role and deletes the Written user we created.
+*/
 function wtt_deactivation() {
 	remove_role( 'wtt_user' );	
 	wp_delete_user( get_option("wtt_user_id") );
 }
 register_deactivation_hook(__FILE__, 'wtt_deactivation');
 
-// Register Plugin Errors
-add_action('activated_plugin','save_error');
-function save_error(){
-    update_option('wtt_plugin_error',  ob_get_contents());
-}
 
-
+/**
+* This checks to see if the Written API has stored the analytics tracking ID in the options table.  If so, we output the Written.com tracking analytics.
+*/
 function wtt_page_tracking() {
 
 	if(get_option('wtt_tracking_id')):
@@ -89,10 +92,11 @@ function wtt_page_tracking() {
 
 	endif;
 }
-
 add_action('wp_footer', 'wtt_page_tracking');
 
-/* This function creates the xmlrpc user and returns the username and password for that user */
+/**
+* This creates the XMLRPC user and returns the username and password as an array.
+*/
 function wtt_create_xml_user() {
 
 	$wp_username = WTT_USER.rand(1000, 9999);
@@ -136,7 +140,9 @@ function wtt_create_xml_user() {
 	return $output;
 }
 
-/* This function sends the username and password to the written api */
+/**
+* This function sends the username and password to the written api.
+*/
 function wtt_send_auth(){
 	$wtt_api_key  = get_option('wtt_api_key');
 	$create_user = wtt_create_xml_user();
@@ -156,18 +162,37 @@ function wtt_send_auth(){
 	if(is_wp_error($response)) {
 		return false;
 	} else {
-		$piwik_id = update_option('wtt_tracking_id',$response['body']);
-		return true;
+
+		switch($response['body']) {
+
+			case 'invalid-api-key':
+
+				return 'invalid-api-key';
+
+			break;
+
+			default:
+
+			$piwik_id = update_option('wtt_tracking_id',$response['body']);
+			return 'success';
+
+			break;
+
+		}
 	}
 }
 
-// Get user Role
+/**
+* This function takes the ID of a user and returns the user role.
+*/
 function get_user_role($id){
     $user = new WP_User($id);
     return array_shift($user->roles);
 }
 
-// Disable edit post if was created by writtenbot
+/**
+* This function restricts you from editing a post if it is currently being licensed.
+*/
 function wtt_restrict_editing_posts( $allcaps, $cap, $args ) {
 
     // Bail out if we're not asking to edit a post ...
@@ -192,10 +217,10 @@ function wtt_restrict_editing_posts( $allcaps, $cap, $args ) {
 add_filter( 'user_has_cap', 'wtt_restrict_editing_posts', 10, 3 );
 
 
-/* Canonical */
-
-remove_action( 'wp_head', 'rel_canonical' );
-add_action( 'wp_head', 'wtt_rel_canonical' );
+/**
+* This is the syndication license functionality.
+* http://written.com/content-licensing/
+*/
 function wtt_rel_canonical(){
 // original code
   if ( !is_singular() )
@@ -221,8 +246,14 @@ function wtt_rel_canonical(){
   echo "<link rel='canonical' href='$link' />\n";
 	
 }
+remove_action( 'wp_head', 'rel_canonical' );
+add_action( 'wp_head', 'wtt_rel_canonical' );
 
-// WP Header 301 Redirect
+
+/**
+* This is the content and traffic license functionality.
+* http://written.com/content-licensing/
+*/
 function wtt_redirect_license(){
 	global $post;
 
@@ -231,11 +262,13 @@ function wtt_redirect_license(){
 		if($redirect_url){ wp_redirect($redirect_url, 301); }
 	}	
 }
-
 add_action('template_redirect', 'wtt_redirect_license');
 
 
-// WP Footer JS Injection for Pixel License
+/**
+* This is the pixel license functionality.
+* http://written.com/content-licensing/
+*/
 function wtt_pixel_license_code(){
 	global $post;
 	if(is_singular()){
@@ -244,143 +277,10 @@ function wtt_pixel_license_code(){
 		if( !empty($pixel_code) ) {
 			foreach($pixel_code as $pixel_code_url):
 				echo $pixel_code_url."\n";
-				//echo "<script type='text/javascript' src='$pixel_code_url'></script>\n";
 			endforeach;
 		}
 	}	
 }
 
-/*
-
-//add_action('wp_footer', 'wtt_pixel_license_code');
-
-// Takeover License Query Vars Set up
-function wtt_parse_request($wp) {
-    // only process requests with "my-plugin=ajax-handler"
-    if (array_key_exists('written', $wp->query_vars) 
-            && $wp->query_vars['written'] === 'takeover') {
-
-		global $post;
-		if(is_singular()){
-			$takeover_code = get_post_meta( $post->ID, 'wtt_takeover_code', TRUE );
-
-			$iframe_code = $takeover_code;
-
-			if( $takeover_code ) {
-				$template = get_option('wtt_html_template');
-
-				$replacements = array(
-					'%wtt_sponsor_by%'=>'Design Hack', 
-					'%wtt_original_article%'=>'#',
-					'%wtt_logo_title%'=>$post->post_title,
-					'%wtt_post_title%'=>$post->post_title,
-					'%wtt_post_date%'=>$post->post_date,
-					'%wtt_post_author%'=>get_the_author_meta( 'user_nicename', $post->post_author),
-					'%wtt_post_content%'=>$post->post_content,
-					'%wtt_written_text%'=>'Written.com',
-					'%wtt_written_url%'=>'http://written.com',
-					'%wtt_sidebar_code%'=>$iframe_code
-				);
-
-				$rendered_template = str_replace(array_keys($replacements), $replacements, $template);
-
-				die($rendered_template);
-			}
-		}
-    }
-}
-
-//add_action('wp', 'wtt_parse_request');
-
-function wtt_query_vars($vars) {
-    $vars[] = 'written';
-    return $vars;
-}
-
-//add_filter('query_vars', 'wtt_query_vars');
-
-
-function wtt_body_class_names($classes) {
-
-	global $post;
-	if(is_singular()){
-		$takeover_code = get_post_meta( $post->ID, 'wtt_takeover_code', TRUE );
-		if( $takeover_code ) {	
-			$classes[] = 'takeover';
-		}
-	}
-	// return the $classes array
-	return $classes;
-}
-
-//add_filter('body_class','wtt_body_class_names');
-
-// WP Footer JS Injection for Takeover License
-function wtt_takeover_license_code(){
-	global $post;
-	if(is_singular()){
-		$takeover_code = get_post_meta( $post->ID, 'wtt_takeover_code', TRUE );
-
-		if( $takeover_code ) {
-
-			echo '<div id="written_ajax"></div><div class="wtt_loader"></div><div class="wtt_overlay_loader"></div>';
-			echo "\n"."<style>"."\n".".wtt_overlay_loader{ z-index:99990;  background-color: #ffffff; width: 100%;  height: 100%;  top: 0;  left: 0;  position: fixed;  overflow:scroll; display:block; }"."\n"."</style>"."\n";
-
-			wp_enqueue_script('wtt_takeover_js',plugins_url('js/wtt_takeover.js', __FILE__),array('jquery'),'',true);
-
-			wp_register_style('wtt_takeover_css', WTT_CSS_TEMPLATE);
-			wp_enqueue_style('wtt_takeover_css');
-
-			wp_register_style('wtt_takeover_dynamic_css', WTT_DYNAMIC_CSS_TEMPLATE);
-			wp_enqueue_style('wtt_takeover_dynamic_css');
-
-		}
-	}	
-}
-
-//add_action('wp_footer', 'wtt_takeover_license_code');
-
-Not sure if this is all needed right now:
-
-// Change author name
-add_filter( 'get_the_author_user_url', 'wtt_guest_author_url' ); 
-add_filter( 'author_link', 'wtt_guest_author_url' ); 
-add_filter( 'the_author', 'wtt_guest_author_link' ); 
-add_filter( 'get_the_author_display_name', 'wtt_guest_author_name' );
-
-function wtt_guest_author_url($url) {
-	global $post;
-
-	$guest_url = get_post_meta( $post->ID, 'wtt_author_url', true );
-
-	if ( $guest_url!=='' ) {
-		return $guest_url;
-	} elseif ( get_post_meta( $post->ID, 'wtt_custom_author', true ) ) {
-		return '#';
-	}
-
-	return $url;
-}
-
-function wtt_guest_author_link($name) {
-	global $post;
-
-	$guest_url = get_post_meta( $post->ID, 'wtt_author_url', true );
-	$guest_name = get_post_meta( $post->ID, 'wtt_custom_author', true );
-
-	if ( $guest_name && filter_var($guest_url, FILTER_VALIDATE_URL) ) {
-		return '<a href="'.$guest_url.'" title="' . esc_attr( sprintf(__("Visit %s&#8217;s website"), $guest_name) ) . '" rel="nofollow">' . $guest_name . '</a>';
-	} elseif( $guest_name ) {
-		return $guest_name;
-	}
-
-	return $name;
-}
-
-function wtt_guest_author_name( $name ) {
-	global $post;
-	$guest_name = get_post_meta( $post->ID, 'wtt_custom_author', true );
-
-	if ( $guest_name ) return $guest_name;
-	return $name;
-}*/
+require_once(plugin_dir_path( __FILE__ ) . 'written-options.php');
+require_once(plugin_dir_path( __FILE__ ) . 'written-xmlrpc.php');
