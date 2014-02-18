@@ -8,7 +8,7 @@ Author: Written.com
 Author URI: http://www.written.com
 */
 
-define("WTT_API", "http://writtenapp.co/", true);
+define("WTT_API", "http://app.written.com/", true);
 define("WTT_EMAIL", "api@written.com", true);
 define("WTT_USER", "writtenapi_", true);
 
