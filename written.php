@@ -214,7 +214,7 @@ function wtt_restrict_editing_posts( $allcaps, $cap, $args ) {
     }
     return $allcaps;
 }
-add_filter( 'user_has_cap', 'wtt_restrict_editing_posts', 10, 3 );
+//add_filter( 'user_has_cap', 'wtt_restrict_editing_posts', 10, 3 );
 
 
 /**
