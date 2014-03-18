@@ -19,6 +19,7 @@ function wtt_xmlrpc_methods($methods){
 	$methods['wtt_get_plugins'] = 'wtt_get_plugins';
 	$methods['wtt_update_auth'] = 'wtt_update_auth';
 	$methods['wtt_get_piwik_id'] = 'wtt_get_piwik_id';
+	$methods['wtt_update_custom_fields'] = 'wtt_update_custom_fields';
 		
 
 	//not currently in use
@@ -38,6 +39,26 @@ function wtt_xmlrpc_methods($methods){
 */
 function wtt_hello($args) {
 	return 'Hello World';
+}
+
+
+function wtt_update_custom_fields($args) {
+	$username		= $args[0];
+	$password		= $args[1];
+	$author_url		= $args[2];
+	$author_name	= $args[3];
+	$post_id		= $args[4];
+
+	global $wp_xmlrpc_server;
+
+	if ( !$user = $wp_xmlrpc_server->login($username, $password) ) {
+		return $wp_xmlrpc_server->error;
+	}
+
+	$update = update_post_meta($post_id,'wtt_author_url',$author_url);
+	$update = update_post_meta($post_id,'wtt_custom_author',$author_name);
+
+	return $update;
 }
 
 

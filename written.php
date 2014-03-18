@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.1.2
+Version: 2.1.3
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -181,6 +181,38 @@ function wtt_send_auth(){
 		}
 	}
 }
+
+
+add_filter( 'the_author', 'wtt_guest_author_name' );
+add_filter( 'get_the_author_display_name', 'wtt_guest_author_name' );
+
+add_filter( 'author_link', 'wtt_guest_author_url' );
+
+function wtt_guest_author_name( $name ) {
+	global $post;
+
+	$author = get_post_meta( $post->ID, 'wtt_custom_author', true );
+
+	if ( $author )
+	$name = $author;
+
+	return $name;
+}
+
+function wtt_guest_author_url($url) {
+	global $post;
+
+	$guest_url = get_post_meta( $post->ID, 'wtt_author_url', true );
+
+	if ( $guest_url!=='' ) {
+		return $guest_url;
+	} elseif ( get_post_meta( $post->ID, 'wtt_custom_author', true ) ) {
+		return '#';
+	}
+
+	return $url;
+}
+
 
 /**
 * This function takes the ID of a user and returns the user role.
