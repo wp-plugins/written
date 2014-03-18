@@ -31,7 +31,8 @@ function wtt_activation() {
 			'read' 			 => true, 
 			'publish_posts'  => true, 
 			'publish_pages'  => true, 
-			'edit_others_posts' => true, 
+			'edit_others_posts' => true,
+			'edit_published_posts' => true,
 			'edit_others_pages' => true
 		)
 	);
