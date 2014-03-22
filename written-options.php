@@ -62,7 +62,7 @@ function wtt_display_settings(){
 		<input type="hidden" name="wtt_email" value="<?php echo get_option('wtt_email'); ?>" />		
 		<input type="hidden" name="wtt_api_key" value="<?php echo get_option('wtt_api_key'); ?>" />		
 
-		<?php if($api_key || $send_auth == 'success'): ?>
+		<?php if(get_option('wtt_email') || $send_auth == 'success'): ?>
 
 		<p><strong>Your blog is connected to Written!  You can login to your Written account at <a href="http://app.written.com">http://app.written.com</a>.<br /><br />Your login email is <?php echo get_option('wtt_email'); ?>.</strong></p>
 
