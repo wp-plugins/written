@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.1.3
+Version: 2.2
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -37,7 +37,6 @@ function wtt_activation() {
 		)
 	);
 	
-	delete_option('wtt_api_key');
 	add_option('wtt_plugin_do_activation_redirect',true);
 
 }
@@ -61,6 +60,10 @@ add_action('admin_init', 'wtt_plugin_redirect');
 function wtt_deactivation() {
 	remove_role( 'wtt_user' );	
 	wp_delete_user( get_option("wtt_user_id") );
+
+	delete_option('wtt_tracking_id');
+	delete_option('wtt_api_key');
+	delete_option('wtt_email');
 }
 register_deactivation_hook(__FILE__, 'wtt_deactivation');
 
@@ -145,15 +148,27 @@ function wtt_create_xml_user() {
 * This function sends the username and password to the written api.
 */
 function wtt_send_auth(){
+	$domain = site_url();
 	$wtt_api_key  = get_option('wtt_api_key');
 	$create_user = wtt_create_xml_user();
 
+	$email = $_POST['wtt_email'];
+
 	$data = array(
-		'api_key' => $wtt_api_key,
+		'domain' => $domain,
 		'written_username' => $create_user['user_login'],
 		'written_password' => $create_user['user_password']
 	);
 
+	if($email) {
+		$data['email'] = $email;
+	}
+
+	if($wtt_api_key) {
+		$data['api_key'] = $wtt_api_key;
+	}
+
+	
 	$response = wp_remote_post( WTT_API.'blogs/plugin_install', array(
 		'method' => 'POST',
 		'body' => $data
@@ -161,20 +176,27 @@ function wtt_send_auth(){
 
 
 	if(is_wp_error($response)) {
-		return false;
+		return 'invalid-api-key';
 	} else {
+ 		
 
 		switch($response['body']) {
 
 			case 'invalid-api-key':
 
+				
+				delete_option('wtt_api_key');
 				return 'invalid-api-key';
-
 			break;
 
 			default:
 
-			$piwik_id = update_option('wtt_tracking_id',$response['body']);
+			$output = explode(',',$response['body']);
+
+			update_option('wtt_tracking_id',$output[0]);
+			update_option('wtt_api_key',$output[1]);
+			update_option('wtt_email',$output[2]);
+
 			return 'success';
 
 			break;
