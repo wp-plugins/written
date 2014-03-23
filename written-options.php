@@ -69,7 +69,6 @@ function wtt_display_settings(){
 		<div style="display: inline">
 		<?php submit_button('Resync with Written');  ?>
 		</div>
-		<em>We may occassionally ask you to click this button!</em>
 		<?php else: ?>
 		<p>To add your blog to Written, please enter your email and click "Connect to Written".<br />If you already created an account on Written, please enter the email you signed up with below.</p>
 		<table class="form-table"> 
