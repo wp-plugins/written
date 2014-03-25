@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.2.1
+Version: 2.2.2
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -314,7 +314,16 @@ function wtt_redirect_license(){
 
 	if(is_singular()){
 		$redirect_url = get_post_meta($post->ID, 'wtt_redirect', true);
-		if($redirect_url){ wp_redirect($redirect_url, 301); }
+		if($redirect_url){ 
+
+			if(get_post_meta($post->ID,'wtt_redirect_temp')) {
+				wp_redirect($redirect_url, 302); 
+			} else {
+				wp_redirect($redirect_url, 301); 
+			}
+			
+
+		}
 	}	
 }
 add_action('template_redirect', 'wtt_redirect_license');

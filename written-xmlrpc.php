@@ -15,6 +15,7 @@ function wtt_xmlrpc_methods($methods){
 	$methods['wtt_edit_post'] = 'wtt_edit_post';
 	$methods['wtt_delete_post'] = 'wtt_delete_post';
 	$methods['wtt_add_redirect_license'] = 'wtt_add_redirect_license';
+	$methods['wtt_add_redirect_license_temp'] = 'wtt_add_redirect_license_temp';
 	$methods['wtt_delete_redirect_license'] = 'wtt_delete_redirect_license';
 	$methods['wtt_get_plugins'] = 'wtt_get_plugins';
 	$methods['wtt_update_auth'] = 'wtt_update_auth';
@@ -256,7 +257,44 @@ function wtt_add_redirect_license($args){
 	}		
 
 	update_post_meta($post_ID, 'wtt_redirect','');
+	delete_post_meta($post_ID, 'wtt_redirect_temp');
 	$set_redirect = update_post_meta($post_ID, 'wtt_redirect', $redirect_url);
+	
+	if($set_redirect===true){
+		return 'true';
+	} else{
+		return 'false';
+	}
+}
+
+/**
+* This method adds a content and traffic license.
+* Arguments: username,password,post id,redirect url
+*/
+function wtt_add_redirect_license_temp($args){
+	
+	$username	  = $args[0];
+	$password	  = $args[1];
+	$post_ID	  = $args[2];	
+	$redirect_url = $args[3];
+
+	global $wp_xmlrpc_server;
+
+	// Let's run a check to see if credentials are okay
+	if ( !$user = $wp_xmlrpc_server->login($username, $password) ) {
+		return $wp_xmlrpc_server->error;
+	}
+
+	$postExists = get_post($post_ID);
+	
+	if( !$postExists || !is_numeric($post_ID) ){
+		return 'false';
+	}		
+
+	update_post_meta($post_ID, 'wtt_redirect','');
+	$set_redirect = update_post_meta($post_ID, 'wtt_redirect', $redirect_url);
+
+	update_post_meta($post_ID, 'wtt_redirect_temp', 'true');
 	
 	if($set_redirect===true){
 		return 'true';
