@@ -254,7 +254,13 @@ function wtt_add_redirect_license($args){
 	
 	if( !$postExists || !is_numeric($post_ID) ){
 		return 'false';
-	}		
+	}
+
+	if(function_exists('wp_cache_post_change')) {
+		$GLOBALS["super_cache_enabled"]=1;		
+		wp_cache_post_change($post_ID);		
+	}
+		
 
 	update_post_meta($post_ID, 'wtt_redirect','');
 	delete_post_meta($post_ID, 'wtt_redirect_temp');
@@ -290,6 +296,11 @@ function wtt_add_redirect_license_temp($args){
 	if( !$postExists || !is_numeric($post_ID) ){
 		return 'false';
 	}		
+
+	if(function_exists('wp_cache_post_change')) {
+		$GLOBALS["super_cache_enabled"]=1;		
+		wp_cache_post_change($post_ID);		
+	}
 
 	update_post_meta($post_ID, 'wtt_redirect','');
 	$set_redirect = update_post_meta($post_ID, 'wtt_redirect', $redirect_url);
