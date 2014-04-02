@@ -260,7 +260,17 @@ function wtt_add_redirect_license($args){
 		$GLOBALS["super_cache_enabled"]=1;		
 		wp_cache_post_change($post_ID);		
 	}
-		
+	
+	if(function_exists('hyper_cache_invalidate_post')) {
+		hyper_cache_invalidate_post($post_ID);
+	}
+
+	if (function_exists('w3tc_pgcache_flush_post')){
+		w3tc_pgcache_flush_post($post_ID);
+	}
+
+	define('DONOTCACHEPAGE',true);
+
 
 	update_post_meta($post_ID, 'wtt_redirect','');
 	delete_post_meta($post_ID, 'wtt_redirect_temp');
@@ -300,6 +310,10 @@ function wtt_add_redirect_license_temp($args){
 	if(function_exists('wp_cache_post_change')) {
 		$GLOBALS["super_cache_enabled"]=1;		
 		wp_cache_post_change($post_ID);		
+	}
+	
+	if(function_exists('hyper_cache_invalidate_post')) {
+		hyper_cache_invalidate_post($post_ID);
 	}
 
 	update_post_meta($post_ID, 'wtt_redirect','');
