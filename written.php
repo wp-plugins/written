@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.3
+Version: 2.3.1
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -352,3 +352,4 @@ function wtt_pixel_license_code(){
 
 require_once(plugin_dir_path( __FILE__ ) . 'written-options.php');
 require_once(plugin_dir_path( __FILE__ ) . 'written-xmlrpc.php');
+require_once(plugin_dir_path( __FILE__ ) . 'bruteprotect-install.php');

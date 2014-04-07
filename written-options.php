@@ -91,6 +91,7 @@ function wtt_display_settings(){
 			</tr>
 		</table>
 		<?php submit_button('Connect to Written');  ?>
+		<?php show_bruteprotect_install_button( 'written' ); ?>
 		<p><small><a href="http://written.com/bloggers/" target="_blank">What is Written?</a></small></p>
 		<?php endif; ?>			
 		
