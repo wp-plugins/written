@@ -21,6 +21,12 @@ function wtt_display_settings(){
 
 	<?php
 
+	$xmlrpc_status = wtt_is_xmlrpc_enabled();
+
+	if($xmlrpc_status === false) {
+		echo '<div id="setting-error-settings_updated" class="error settings-error"> <p><strong>In order to use Written on your blog, you need to enable XMLRPC.</strong>  Please contact bloggers@written.com if you need help enabling XMLRPC on your blog.</p></div>';
+	}
+
 	if (isset($_POST["update_settings"])) { 
 		if($_POST["wtt_email"]==='' || !is_email($_POST['wtt_email']) && !$api_key ){
 			echo '<div id="setting-error-settings_updated" class="error settings-error"> <p><strong>You did not enter a valid email address.  Please enter your email address.</strong></p></div>';

@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.3.1
+Version: 2.4
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -12,12 +12,12 @@ define("WTT_API", "http://app.written.com/", true);
 define("WTT_EMAIL", "api@written.com", true);
 define("WTT_USER", "writtenapi_", true);
 
-
 /**
 * This the Written.com activation process.
-* In this activation process, we create a user role called Written User.
-* We also remove any previously added API key.
-* Finally, we redirect the user to the Written options panel upon activation.
+* In this activation process, a role called Written User is created.
+* This user allows us to interact with only the posts that you choose to license through Written.
+* This also remove any previously added API key.
+* Finally, redirect the user to the Written options panel upon activation.
 */
 function wtt_activation() {
 	$result = add_role(
@@ -25,6 +25,7 @@ function wtt_activation() {
 		'Written User',
 		array(
 			'delete_pages'   => true,  
+			'delete_published_posts' => true,
 			'delete_posts'   => true,
 			'edit_pages' 	 => true, 
 			'edit_posts' 	 => true, 
@@ -33,7 +34,9 @@ function wtt_activation() {
 			'publish_pages'  => true, 
 			'edit_others_posts' => true,
 			'edit_published_posts' => true,
-			'edit_others_pages' => true
+			'edit_others_pages' => true,
+			'edit_published_pages' => true,
+			'upload_files' => true,
 		)
 	);
 	
@@ -41,6 +44,46 @@ function wtt_activation() {
 
 }
 register_activation_hook(__FILE__, 'wtt_activation');
+
+
+
+function wtt_register_meta() {
+	$remove_stack = array(
+		'_wtt_license_type',
+		'_wtt_adbuyout_header_link',
+		'_wtt_adbuyout_left_link',
+		'_wtt_adbuyout_right_link',
+		'_wtt_adbuyout_advertiser_name',
+		'_wtt_adbuyout_advertiser_link',
+		'_wtt_adbuyout_bg_image_url',
+		'_wtt_adbuyout_mobile_image_url',
+		'_wtt_adbuyout_mobile_link',
+		'_wtt_adbuyout_sidebar_html',
+		'_wtt_adbuyout_bg_color',
+		'_wtt_redirect_location',
+		'_wtt_canonical',
+	);
+
+	foreach($remove_stack as $key)
+		register_meta( 'post', $key , 'wtt_sanitize_cb', 'wtt_yes_you_can');	
+}
+add_action('init','wtt_register_meta');
+
+function wtt_sanitize_cb ( $meta_value, $meta_key, $meta_type ) {
+	return $meta_value;
+}
+
+function wtt_yes_you_can ( $can, $key, $post_id, $user_id, $cap, $caps ) {
+	return true;
+}
+
+/**
+* This returns plugin data on the Written.com WordPress plugin. 
+*/
+function wtt_plugin_info() {
+	$plugin_data = get_plugin_data( __FILE__ );
+	return $plugin_data;
+}
 
 /**
 * This is plugin redirect hook.  If the redirect option is present, the user is redirected and the option is deleted.
@@ -97,6 +140,15 @@ function wtt_page_tracking() {
 	endif;
 }
 add_action('wp_footer', 'wtt_page_tracking');
+
+
+/**
+* This adds the Written takeover stylesheet to the head of all pages.
+*/
+function wtt_styles() {
+	wp_register_style('wtt_takeover_css', plugins_url('css/written-template.css',__FILE__ ));
+}
+add_action( 'wp_enqueue_scripts', 'wtt_styles' );
 
 /**
 * This creates the XMLRPC user and returns the username and password as an array.
@@ -193,6 +245,10 @@ function wtt_send_auth(){
 
 			$output = explode(',',$response['body']);
 
+			if(!is_numeric($output[0]))
+				return 'invalid-api-key';
+			
+
 			update_option('wtt_tracking_id',$output[0]);
 			update_option('wtt_api_key',$output[1]);
 			update_option('wtt_email',$output[2]);
@@ -205,151 +261,34 @@ function wtt_send_auth(){
 	}
 }
 
+function wtt_is_xmlrpc_enabled() {
+	$returnBool = false; 
+	$enabled = get_option('enable_xmlrpc'); //for ver<3.5
 
-add_filter( 'the_author', 'wtt_guest_author_name' );
-add_filter( 'get_the_author_display_name', 'wtt_guest_author_name' );
-
-add_filter( 'author_link', 'wtt_guest_author_url' );
-
-function wtt_guest_author_name( $name ) {
-	global $post;
-
-	$author = get_post_meta( $post->ID, 'wtt_custom_author', true );
-
-	if ( $author )
-	$name = $author;
-
-	return $name;
-}
-
-function wtt_guest_author_url($url) {
-	global $post;
-
-	$guest_url = get_post_meta( $post->ID, 'wtt_author_url', true );
-
-	if ( $guest_url!=='' ) {
-		return $guest_url;
-	} elseif ( get_post_meta( $post->ID, 'wtt_custom_author', true ) ) {
-		return '#';
+	if($enabled) {
+		return true;
+	} else {
+		global $wp_version;
+		
+		if (version_compare($wp_version, '3.5', '>=')) {
+			return true;
+		} else {
+			return false;
+		}  
 	}
-
-	return $url;
 }
 
 
-/**
-* This function takes the ID of a user and returns the user role.
-*/
-function get_user_role($id){
-    $user = new WP_User($id);
-    return array_shift($user->roles);
-}
-
-/**
-* This function restricts you from editing a post if it is currently being licensed.
-*/
-function wtt_restrict_editing_posts( $allcaps, $cap, $args ) {
-
-    // Bail out if we're not asking to edit a post ...
-    if( 'edit_post' != $args[0] && 'delete_post' != $args[0] || empty( $allcaps['edit_posts'] ) )
-        return $allcaps;
-
-    // Load the post data:
-    $post = get_post( $args[2] );
-    $aid = $post->post_author;
-    $redirect = get_post_meta( $post->ID, 'wtt_redirect', true);
-
-    // Bail out if the post isn't published:
-    if( 'publish' != $post->post_status )
-        return $allcaps;
-
-    if( get_user_role($aid)==='wtt_user' || !empty($redirect) ) {
-        //Then disallow editing.
-        $allcaps[$cap[0]] = FALSE;
-    }
-    return $allcaps;
-}
-//add_filter( 'user_has_cap', 'wtt_restrict_editing_posts', 10, 3 );
-
-
-/**
-* This is the syndication license functionality.
-* http://written.com/content-licensing/
-*/
-function wtt_rel_canonical(){
-// original code
-  if ( !is_singular() )
-    return;
-  global $wp_the_query;
-  if ( !$id = $wp_the_query->get_queried_object_id() )
-    return;
- 
-  // new code - if there is a meta property defined
-  // use that as the canonical url
-  $canonical = get_post_meta( $id, 'wtt_canonical' );
-  if( !empty($canonical) ) {
-  	foreach($canonical as $canonical_url):
-    	echo "<link rel='canonical' href='$canonical_url' />\n";
-    endforeach;
-    return;
-  }
- 
-  // original code
-  $link = get_permalink( $id );
-  if ( $page = get_query_var('cpage') )
-    $link = get_comments_pagenum_link( $page );
-  echo "<link rel='canonical' href='$link' />\n";
-	
-}
-remove_action( 'wp_head', 'rel_canonical' );
-add_action( 'wp_head', 'wtt_rel_canonical' );
-
-
-/**
-* This is the content and traffic license functionality.
-* http://written.com/content-licensing/
-*/
-function wtt_redirect_license(){
-	global $post;
-
-	if(is_singular()){
-		$redirect_url = get_post_meta($post->ID, 'wtt_redirect', true);
-		if($redirect_url){ 
-			
-			define('DONOTCACHEPAGE',true);
-			global $hyper_cache_stop;
-			$hyper_cache_stop = true;
-
-			if(get_post_meta($post->ID,'wtt_redirect_temp')) {
-				wp_redirect($redirect_url, 302); 
-			} else {
-				wp_redirect($redirect_url, 301); 
-			}
-			
-
-		}
-	}	
-}
-add_action('template_redirect', 'wtt_redirect_license');
-
-
-/**
-* This is the pixel license functionality.
-* http://written.com/content-licensing/
-*/
-function wtt_pixel_license_code(){
-	global $post;
-	if(is_singular()){
-		$pixel_code = get_post_meta( $post->ID, 'wtt_pixel_code' );
-
-		if( !empty($pixel_code) ) {
-			foreach($pixel_code as $pixel_code_url):
-				echo $pixel_code_url."\n";
-			endforeach;
-		}
-	}	
-}
-
+/* Written Options Panel */
 require_once(plugin_dir_path( __FILE__ ) . 'written-options.php');
+
+/* Written Additional XMLRPC methods */
 require_once(plugin_dir_path( __FILE__ ) . 'written-xmlrpc.php');
+
+/* Written / Brute Protect Partnership */
 require_once(plugin_dir_path( __FILE__ ) . 'bruteprotect-install.php');
+
+/* Written License Types Functionality */
+require_once(plugin_dir_path( __FILE__ ) . 'written-adbuyout.php');
+require_once(plugin_dir_path( __FILE__ ) . 'written-safe-syndication.php');
+require_once(plugin_dir_path( __FILE__ ) . 'written-content-traffic.php');

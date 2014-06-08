@@ -22,10 +22,15 @@ if( !class_exists( 'BruteProtect_Housed_Installer' ) ) {
     	}
 		
 		function bruteprotect_one_click_admin_notice() {
-			if( $_GET[ 'page' ] == 'written_settings' || $this->bruteprotect_active() || $_GET[ 'plugin' ] == 'bruteprotect' || get_site_option( 'hide_oneclick_bruteprotect_shoutout' ) )
+			if( (isset($_GET[ 'page' ]) && $_GET[ 'page' ] == 'written_settings') || $this->bruteprotect_active() || (isset($_GET[ 'plugin' ]) && $_GET[ 'plugin' ] == 'bruteprotect') || get_site_option( 'hide_oneclick_bruteprotect_shoutout' ) )
 				return;
 			?>
-			<div class="updated after-h2" style="padding: 20px; border-color: #ff6600; background-color: #fff; position: relative;"><a href="<?php echo $this->get_install_url(); ?>" class="wp-core-ui button-primary" style="float: right; margin: 10px 0 0 20px;" target="_blank">Protect my site in 30 seconds</a>Written values your security.  It is imperative for you and for our partners that your site is safe.  That’s why we’ve partnered with BruteProtect, a free service, which will protect you from botnet brute force attacks.<a href="<?php echo add_query_arg( 'dismiss_oneclick_bruteprotect_shoutout', 'true' ); ?>" class="dismiss" style="position: absolute;top: 5px;right: 10px;font-weight: bold;color: #AAA;font-size: 20px;" onclick="jQuery('.bruteprotect-shoutout').slideUp();">&times;</a></div>
+			<div class="updated after-h2" style="padding: 20px; border-color: #ff6600; background-color: #fff; position: relative;">Written values your security.  It is imperative for you and for our partners that your site is safe.  That’s why we’ve partnered with BruteProtect, a free service, which will protect you from botnet brute force attacks.<br /> <br /><a href="<?php echo $this->get_install_url(); ?>" class="wp-core-ui button-primary" style="margin-right: 10px" target="_blank">Protect my site in 30 seconds</a>
+
+				
+
+				<strong><a href="<?php echo add_query_arg( 'dismiss_oneclick_bruteprotect_shoutout', 'true' ); ?>">Dismiss this message</a></strong>
+			</div>
 			<?php 
 		}
 		
@@ -63,7 +68,6 @@ if( !function_exists( 'show_bruteprotect_install_button' ) ) {
 		if( $affiliate_code && !get_site_option( 'bruteprotect_api_key' ) )
 			add_site_option( 'bruteprotect_affiliate_code', $affiliate_code );
 		
-		echo '<a href="' . $bphi->get_install_url() . '"><img src="//bruteprotect.com/assets/written-ad.jpg" /></a>';
+		//echo '<a href="' . $bphi->get_install_url() . '"><img src="//bruteprotect.com/assets/written-ad.jpg" /></a>';
 	}
 }
-
