@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.4
+Version: 2.4.1
 Author: Written.com
 Author URI: http://www.written.com
 */
