@@ -21,6 +21,7 @@
 jQuery(document).ready(function(){
 	var $post_url = window.location;
     jQuery('html').addClass('takeover');
+
     jQuery('#written_ajax').load(jQuery.param.querystring(window.location.href, 'written=takeover'), function(){
     	jQuery('.wtt_loader').fadeOut('fast');
     });
