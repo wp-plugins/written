@@ -140,27 +140,6 @@ function wtt_save_template(){
 	
 	update_option("wtt_html_template", $page); 
 
-	/*
-	not allowed in WP repo
-	if (function_exists('file_get_contents')) {
-		$page = file_get_contents(WTT_HTML_TEMPLATE);
-		update_option("wtt_html_template", $page); 	
-	} else {
-		$ch = curl_init();
-		$timeout = 5;
-		curl_setopt($ch, CURLOPT_URL, WTT_HTML_TEMPLATE);
-		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)");
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,false);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,false);
-		curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-		$page = curl_exec($ch);
-		curl_close($ch);
-		
-	}*/
-
 }
 
 add_filter( 'cron_schedules', 'wtt_cron_add_ten_minutes' );
