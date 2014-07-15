@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.5
+Version: 2.5.1
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -39,7 +39,7 @@ class Written_Licensing_Plugin {
 		add_action('admin_init', array($this,'plugin_redirect'));
 		add_action('wp_footer', array($this,'page_tracking'));
 		add_action( 'wp_enqueue_scripts', array($this,'written_styles') ,1);
-		add_action('save_post', array($this,'strip_back_slashses'));
+		//add_action('save_post', array($this,'strip_back_slashses'));
 
 		if(get_option('wtt_plugin_version_number') != $this->version)
 			$this->activate();
@@ -132,6 +132,9 @@ class Written_Licensing_Plugin {
 		return true;
 	}
 
+	/*
+	A better solution for this is needed.  Security risk by implementing this way 
+	Removed on version 2.5.1
 	public function strip_back_slashses($post_id)	{
 
 		$post = get_post($post_id);
@@ -146,7 +149,7 @@ class Written_Licensing_Plugin {
 		add_action( 'save_post', array($this,'strip_back_slashses') );
 		return $update;
 
-	}
+	}*/
 	
 
 	/**
