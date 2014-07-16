@@ -72,8 +72,9 @@ function wtt_count_posts($args) {
 * This method updates XMLRPC auth on Written api
 */
 function wtt_update_auth($args){
-
-	$send_auth = wtt_send_auth();
+	
+	global $written_licensing_plugin;
+	$send_auth = $written_licensing_plugin->send_auth();
 
 	return $send_auth;
 }
