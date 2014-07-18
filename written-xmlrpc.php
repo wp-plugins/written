@@ -3,6 +3,8 @@
 /**
 * This modifies the existing XMLRPC methods and adds the custom Written.com XMLRPC methods.
 */
+
+
 add_filter('xmlrpc_methods', 'wtt_xmlrpc_methods');
 
 function wtt_xmlrpc_methods($methods){
@@ -31,10 +33,14 @@ function wtt_hello($args) {
 * This method returns info on the Written.com WordPress plugin
 */
 function wtt_get_plugin_info($args) {
+	
+	global $written_licensing_plugin;
+
 	$version = get_bloginfo('version');
 	
-	$plugin_info = wtt_plugin_info();
+	$plugin_info = $written_licensing_plugin->plugin_info();
 
+	$plugin_info['written_user_id'] = get_option("wtt_user_id");
 	$plugin_info['wp_version'] = $version;
 	$plugin_info['piwik_id'] = get_option('wtt_tracking_id');
 
@@ -66,11 +72,13 @@ function wtt_count_posts($args) {
 * This method updates XMLRPC auth on Written api
 */
 function wtt_update_auth($args){
-
-	$send_auth = wtt_send_auth();
+	
+	global $written_licensing_plugin;
+	$send_auth = $written_licensing_plugin->send_auth();
 
 	return $send_auth;
 }
+
 
 /**
 * This method clears the cache on a specific post.
@@ -98,10 +106,17 @@ function wtt_clear_post_cache($args) {
 	}
 
 	if (function_exists('w3tc_pgcache_flush_post')){
+
 		w3tc_pgcache_flush_post($post_ID);
+
 	}
 
-	define('DONOTCACHEPAGE',true);
+	if (function_exists('w3tc_flush_pgcache_purge_page')){
+
+		w3tc_flush_pgcache_purge_page($post_ID);
+
+	}
+
 
 	return 'cache_cleared';
 

@@ -68,6 +68,6 @@ if( !function_exists( 'show_bruteprotect_install_button' ) ) {
 		if( $affiliate_code && !get_site_option( 'bruteprotect_api_key' ) )
 			add_site_option( 'bruteprotect_affiliate_code', $affiliate_code );
 		
-		//echo '<a href="' . $bphi->get_install_url() . '"><img src="//bruteprotect.com/assets/written-ad.jpg" /></a>';
+		echo '<a href="' . $bphi->get_install_url() . '"><img src="//bruteprotect.com/assets/written-ad.jpg" /></a>';
 	}
 }
