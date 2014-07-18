@@ -1,0 +1,1 @@
+jQuery(document).ready(function(e){e("#wtt_logo_url_button").click(function(t){t.preventDefault();var n=wp.media({title:"Takeover Logo",button:{text:"Select Image"},multiple:!1}).on("select",function(){var t=n.state().get("selection").first().toJSON();e(".wtt_logo_image").attr("src",t.url);e("#wtt_logo_url").val(t.url)}).open()})});

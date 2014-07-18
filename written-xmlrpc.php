@@ -108,7 +108,6 @@ function wtt_clear_post_cache($args) {
 	if (function_exists('w3tc_pgcache_flush_post')){
 
 		w3tc_pgcache_flush_post($post_ID);
-		w3tc_flush_pgcache_purge_page($post_ID);
 
 	}
 
