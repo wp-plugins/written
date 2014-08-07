@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.5.3
+Version: 2.5.4
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -24,7 +24,7 @@ class Written_Licensing_Plugin {
 		require_once(plugin_dir_path( __FILE__ ) . 'written-xmlrpc.php');
 
 		/* Written / Brute Protect Partnership */
-		require_once(plugin_dir_path( __FILE__ ) . 'bruteprotect-install.php');
+		//require_once(plugin_dir_path( __FILE__ ) . 'bruteprotect-install.php');
 
 		/* Written License Types Functionality */
 		require_once(plugin_dir_path( __FILE__ ) . 'written-adbuyout.php');

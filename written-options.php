@@ -98,7 +98,7 @@ function wtt_display_settings(){
 
 		
 	</form>
-	<?php show_bruteprotect_install_button( 'written' ); ?>
+	<?php //show_bruteprotect_install_button( 'written' ); ?>
 </div>
 	
 <?php
