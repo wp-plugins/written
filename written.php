@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.5.5
+Version: 2.5.6
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -37,7 +37,7 @@ class Written_Licensing_Plugin {
 		add_action('admin_menu', array($this,'plugin_settings'));
 		add_action('init',array($this,'register_meta'));
 		add_action('admin_init', array($this,'plugin_redirect'));
-		add_action('wp_footer', array($this,'page_tracking'));
+		add_action('wp_footer', array($this,'page_tracking'),999999);
 		add_action( 'wp_enqueue_scripts', array($this,'written_styles') ,1);
 		//add_action('save_post', array($this,'strip_back_slashses'));
 
