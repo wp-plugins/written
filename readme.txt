@@ -1,9 +1,9 @@
 === Written ===
 Tags: plugin, content marketing, monetization, written, written.com, content, marketing, licensing
 Contributors: written
-Tested up to: 3.9.1
+Tested up to: 4.0
 Requires at least: 3.5
-Stable Tag: 2.4.1
+Stable Tag: 2.5.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,4 @@ Written values great content. We help brands build and target an audience for th
 
 3. Activate the Written plugin.
 
-4. Go to Written.com to create your blogger account
-
-5. On the Written settings page of your WordPress admin, enter in your Written.com API key
+4. On the Written settings page of your WordPress admin, enter in your email address and click "Sync with Written"
