@@ -15,7 +15,7 @@ function wtt_rel_canonical(){
 
 	$canonical = get_post_meta( $id, '_wtt_license_type' , true );
 	if( $canonical == '2' ) {
-		
+		add_filter( 'wpseo_canonical', '__return_false' );
 		echo "<link rel='canonical' href='".get_post_meta($id, '_wtt_canonical', true )."' />\n";
 		
 		return;
@@ -28,4 +28,4 @@ function wtt_rel_canonical(){
 
 }
 remove_action( 'wp_head', 'rel_canonical' );
-add_action( 'wp_head', 'wtt_rel_canonical' );
+add_action( 'wp_head', 'wtt_rel_canonical' ,1);

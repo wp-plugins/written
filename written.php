@@ -3,28 +3,25 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 2.5.6
+Version: 3.0
 Author: Written.com
 Author URI: http://www.written.com
 */
 
-define("WTT_API", "http://app.written.com/", true);
+define("WTT_API", "https://app.written.com/", true);
 define("WTT_EMAIL", "api@written.com", true);
 define("WTT_USER", "writtenapi_", true);
 
 class Written_Licensing_Plugin {
 
-	var $version = 2.5;
+	var $version = '3.0.0';
 
 	public function bootstrap() {
 		/* Written Options Panel */
 		require_once(plugin_dir_path( __FILE__ ) . 'written-options.php');
 
-		/* Written Additional XMLRPC methods */
-		require_once(plugin_dir_path( __FILE__ ) . 'written-xmlrpc.php');
-
-		/* Written / Brute Protect Partnership */
-		//require_once(plugin_dir_path( __FILE__ ) . 'bruteprotect-install.php');
+		/* Written API */
+		require_once(plugin_dir_path( __FILE__ ) . 'written-api.php');
 
 		/* Written License Types Functionality */
 		require_once(plugin_dir_path( __FILE__ ) . 'written-adbuyout.php');
@@ -39,10 +36,11 @@ class Written_Licensing_Plugin {
 		add_action('admin_init', array($this,'plugin_redirect'));
 		add_action('wp_footer', array($this,'page_tracking'),999999);
 		add_action( 'wp_enqueue_scripts', array($this,'written_styles') ,1);
-		//add_action('save_post', array($this,'strip_back_slashses'));
 
 		if(get_option('wtt_plugin_version_number') != $this->version)
 			$this->activate();
+
+		$written_api = new Written_API_Endpoint();
 	}
 
 	/**
@@ -53,27 +51,33 @@ class Written_Licensing_Plugin {
 	* Finally, redirect the user to the Written options panel upon activation.
 	*/
 	public function activate() {
-
+		$written_api = new Written_API_Endpoint();
 		remove_role('wtt_user');
 		$result = add_role(
 			'wtt_user',
 			'Written User',
 			array(
-				'delete_pages'   => true,  
-				'delete_published_posts' => true,
-				'delete_posts'   => true,
-				'edit_pages' 	 => true, 
-				'edit_posts' 	 => true, 
-				'read' 			 => true, 
-				'publish_posts'  => true, 
-				'publish_pages'  => true, 
-				'edit_others_posts' => true,
-				'edit_published_posts' => true,
-				'edit_others_pages' => true,
-				'edit_published_pages' => true,
-				'upload_files' => true,
+				'delete_pages'   => false,  
+				'delete_published_posts' => false,
+				'delete_posts'   => false,
+				'edit_pages' 	 => false, 
+				'edit_posts' 	 => false, 
+				'read' 			 => false, 
+				'publish_posts'  => false, 
+				'publish_pages'  => false, 
+				'edit_others_posts' => false,
+				'edit_published_posts' => false,
+				'edit_others_pages' => false,
+				'edit_published_pages' => false,
+				'upload_files' => false,
 			)
 		);
+
+		if(is_admin()) {
+			$written_api->add_endpoint();
+			flush_rewrite_rules();
+		}
+		
 
 
 		add_option('wtt_plugin_do_activation_redirect',true);
@@ -118,6 +122,7 @@ class Written_Licensing_Plugin {
 			'_wtt_adbuyout_bg_color',
 			'_wtt_redirect_location',
 			'_wtt_canonical',
+			'_wtt_is_written_post'
 		);
 
 		foreach($remove_stack as $key)
@@ -131,34 +136,7 @@ class Written_Licensing_Plugin {
 	public function yes_you_can ( $can, $key, $post_id, $user_id, $cap, $caps ) {
 		return true;
 	}
-
-	/*
-	A better solution for this is needed.  Security risk by implementing this way 
-	Removed on version 2.5.1
-	public function strip_back_slashses($post_id)	{
-
-		$post = get_post($post_id);
-
-		$data['ID'] = $post_id;
-		$data['post_title'] =  str_replace('\\','',$post->post_title);
-		$data['post_content'] =  str_replace('\\','',$post->post_content);
-
-		remove_action( 'save_post', array($this,'strip_back_slashses') );
-		$update = wp_update_post($data);
-
-		add_action( 'save_post', array($this,'strip_back_slashses') );
-		return $update;
-
-	}*/
 	
-
-	/**
-	* This returns plugin data on the Written.com WordPress plugin. 
-	*/
-	public function plugin_info() {
-		$plugin_data = get_plugin_data( __FILE__ );
-		return $plugin_data;
-	}
 
 	/**
 	* This is plugin redirect hook.  If the redirect option is present, the user is redirected and the option is deleted.
@@ -210,6 +188,7 @@ class Written_Licensing_Plugin {
 
 	/**
 	* This creates the XMLRPC user and returns the username and password as an array.
+	* @return array with user_login,user_password values
 	*/
 	public function create_xml_user() {
 
@@ -256,10 +235,10 @@ class Written_Licensing_Plugin {
 
 	/**
 	* This function sends the username and password to the written api.
+	* @return 'success' or 'error'
 	*/
 	public function send_auth(){
 		$domain = site_url();
-		$wtt_api_key  = get_option('wtt_api_key');
 		$create_user = $this->create_xml_user();
 
 		$email = $_POST['wtt_email'];
@@ -274,67 +253,32 @@ class Written_Licensing_Plugin {
 			$data['email'] = $email;
 		}
 
-		if($wtt_api_key) {
-			$data['api_key'] = $wtt_api_key;
-		}
 
 		
-		$response = wp_remote_post( WTT_API.'blogs/plugin_install', array(
+		$request = wp_remote_post( WTT_API.'blogs/plugin_install', array(
 			'method' => 'POST',
 			'body' => $data
 		));
 
 
-		if(is_wp_error($response)) {
-			return 'invalid-api-key';
-		} else {
-	 		
 
-			switch($response['body']) {
+		if(is_wp_error($request))
+			return 'error';
+		
+		/* maybe need more error handling here */
+		$response = json_decode($request['body']);
+	 	
+	 	if($response->analytics_id) {
+	 		update_option('wtt_tracking_id',$response->analytics_id);
+			update_option('wtt_email',$response->blog_user_email);
+			return 'success';		
+	 	}
 
-				case 'invalid-api-key':
 
-					
-					delete_option('wtt_api_key');
-					return 'invalid-api-key';
-				break;
-
-				default:
-
-				$output = explode(',',$response['body']);
-
-				if(!is_numeric($output[0]))
-					return 'invalid-api-key';
-				
-
-				update_option('wtt_tracking_id',$output[0]);
-				update_option('wtt_api_key',$output[1]);
-				update_option('wtt_email',$output[2]);
-
-				return 'success';
-
-				break;
-
-			}
-		}
+	 	return 'error';
+	 	
 	}
 
-	public function xmlrpc_check() {
-		$returnBool = false; 
-		$enabled = get_option('enable_xmlrpc'); //for ver<3.5
-
-		if($enabled) {
-			return true;
-		} else {
-			global $wp_version;
-			
-			if (version_compare($wp_version, '3.5', '>=')) {
-				return true;
-			} else {
-				return false;
-			}  
-		}
-	}
 }
 
 

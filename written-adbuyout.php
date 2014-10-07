@@ -27,12 +27,6 @@ function wtt_adbuyout_license(){
 		$license_type = get_post_meta($post->ID, '_wtt_license_type', true);
 		
 		if($license_type == '3'){ //3=adbuyout
-				
-			define('DONOTCACHEPAGE',false);
-
-			global $hyper_cache_stop;
-
-			$hyper_cache_stop = false;
 
 		}
 

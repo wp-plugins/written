@@ -3,25 +3,16 @@
 
 function wtt_display_settings(){
 	global $written_licensing_plugin;
-	$api_key = get_option('wtt_api_key');
 	$send_auth = '';
-	
 ?>
 
 <div class="wrap">
 	<h2>Written Settings</h2>
 		
-
 	<?php
 
-	$xmlrpc_status = $written_licensing_plugin->xmlrpc_check();
-
-	if($xmlrpc_status === false) {
-		echo '<div id="setting-error-settings_updated" class="error settings-error"> <p><strong>In order to use Written on your blog, you need to enable XMLRPC.</strong>  Please contact bloggers@written.com if you need help enabling XMLRPC on your blog.</p></div>';
-	}
-
 	if (isset($_POST["update_settings"])) { 
-		if($_POST["wtt_email"]==='' || !is_email($_POST['wtt_email']) && !$api_key ){
+		if($_POST["wtt_email"]==='' || !is_email($_POST['wtt_email'])){
 			echo '<div id="setting-error-settings_updated" class="error settings-error"> <p><strong>You did not enter a valid email address.  Please enter your email address.</strong></p></div>';
 		} else {
 
@@ -31,7 +22,7 @@ function wtt_display_settings(){
 
 				switch($send_auth) {
 
-					case 'invalid-api-key':
+					case 'error':
 
 						echo '<div id="setting-error-settings_updated" class="error settings-error"> <p><strong>Something went wrong.  Please try again.</strong></p></div>';
 
@@ -92,13 +83,8 @@ function wtt_display_settings(){
 		<?php submit_button('Connect to Written');  ?>
 
 		<p><small><a href="http://written.com/bloggers/" target="_blank">What is Written?</a></small></p>
-		<?php endif; ?>			
-		
-		
-
-		
+		<?php endif; ?>		
 	</form>
-	<?php //show_bruteprotect_install_button( 'written' ); ?>
 </div>
 	
 <?php
