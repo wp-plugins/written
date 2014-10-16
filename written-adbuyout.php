@@ -20,6 +20,20 @@ function get_adbuyout_template($single_template) {
 add_filter( 'single_template', 'get_adbuyout_template' );
 add_filter( 'page_template', 'get_adbuyout_template' );
 
+function wtt_adbuyout_license(){
+	global $post;
+
+	if(is_singular()){
+		$license_type = get_post_meta($post->ID, '_wtt_license_type', true);
+		
+		if($license_type == '3'){ //3=adbuyout
+
+		}
+
+	}	
+}
+add_action('template_redirect', 'wtt_adbuyout_license',1);
+
 /**
 * This adds the Written takeover stylesheet to the head of all AdBuyout pages.
 */
