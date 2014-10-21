@@ -149,7 +149,7 @@ class Written_Licensing_Plugin {
 	*/
 	public function page_tracking() {
 
-		if(get_option('wtt_tracking_id') && get_option('wtt_analytics_2') != true):
+		if(get_option('wtt_tracking_id') && get_option('wtt_analytics_2') != 'true'):
 
 	?>
 
