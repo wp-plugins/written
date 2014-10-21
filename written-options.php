@@ -1,53 +1,36 @@
 <?php
 // Set the Options Page
 
-add_action('admin_menu', 'wtt_plugin_settings');
-
-function wtt_plugin_settings() {
-
-	add_menu_page('Written Settings', 'Written Settings', 'activate_plugins', 'written_settings', 'wtt_display_settings',plugins_url('img/written-icon.png', __FILE__ ));
-
-}
-
 function wtt_display_settings(){
-
-	$api_key = get_option('wtt_api_key');
+	global $written_licensing_plugin;
 	$send_auth = '';
 ?>
 
 <div class="wrap">
 	<h2>Written Settings</h2>
 		
-
 	<?php
 
-	$xmlrpc_status = wtt_is_xmlrpc_enabled();
-
-	if($xmlrpc_status === false) {
-		echo '<div id="setting-error-settings_updated" class="error settings-error"> <p><strong>In order to use Written on your blog, you need to enable XMLRPC.</strong>  Please contact bloggers@written.com if you need help enabling XMLRPC on your blog.</p></div>';
-	}
-
 	if (isset($_POST["update_settings"])) { 
-		if($_POST["wtt_email"]==='' || !is_email($_POST['wtt_email']) && !$api_key ){
+		if($_POST["wtt_email"]==='' || !is_email($_POST['wtt_email'])){
 			echo '<div id="setting-error-settings_updated" class="error settings-error"> <p><strong>You did not enter a valid email address.  Please enter your email address.</strong></p></div>';
 		} else {
 
-			$send_auth = wtt_send_auth();
+			$send_auth = $written_licensing_plugin->send_auth();
 
 			if($send_auth) {
 
 				switch($send_auth) {
 
-					case 'invalid-api-key':
-
-						echo '<div id="setting-error-settings_updated" class="error settings-error"> <p><strong>Something went wrong.  Please try again.</strong></p></div>';
-
-					break;
-
-
 					case 'success':
 
 						echo '<div id="setting-error-settings_updated" class="updated settings-error"> <p><strong>Success!  Your plugin has been installed.  Please clear the cache on your blog.</strong></p></div>';
+
+					break;
+
+					default:
+
+						echo '<div id="setting-error-settings_updated" class="error settings-error"> <p><strong>'.$send_auth.'</strong></p></div>';
 
 					break;
 				}
@@ -70,7 +53,7 @@ function wtt_display_settings(){
 
 		<?php if(get_option('wtt_email') || $send_auth == 'success'): ?>
 
-		<p><strong>Your blog is connected to Written!  You can login to your Written account at <a href="http://app.written.com">http://app.written.com</a>.<br /><br />Your login email is <?php echo get_option('wtt_email'); ?>.</strong></p>
+		<p><strong>Your blog is connected to Written!  You can login to your Written account at <a href="https://written.com/login">https://written.com/login</a>.<br /><br />Your login email is <?php echo get_option('wtt_email'); ?>.</strong></p>
 
 		<div style="display: inline">
 		<?php submit_button('Resync with Written');  ?>
@@ -98,14 +81,9 @@ function wtt_display_settings(){
 		</table>
 		<?php submit_button('Connect to Written');  ?>
 
-		<p><small><a href="http://written.com/bloggers/" target="_blank">What is Written?</a></small></p>
-		<?php endif; ?>			
-		
-		
-
-		
+		<p><small><a href="https://written.com/bloggers/" target="_blank">What is Written?</a></small></p>
+		<?php endif; ?>		
 	</form>
-	<?php show_bruteprotect_install_button( 'written' ); ?>
 </div>
 	
 <?php
