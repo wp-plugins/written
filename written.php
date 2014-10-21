@@ -3,18 +3,18 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 3.0.1
+Version: 3.0.2
 Author: Written.com
 Author URI: http://www.written.com
 */
 
-define("WTT_API", "http://written.com/", true);
+define("WTT_API", "https://written.com/", true);
 define("WTT_EMAIL", "api@written.com", true);
 define("WTT_USER", "writtenapi_", true);
 
 class Written_Licensing_Plugin {
 
-	var $version = '3.0.1';
+	var $version = '3.0.2';
 
 	public function bootstrap() {
 		/* Written Options Panel */
@@ -35,6 +35,7 @@ class Written_Licensing_Plugin {
 		add_action('init',array($this,'register_meta'));
 		add_action('admin_init', array($this,'plugin_redirect'));
 		add_action('wp_footer', array($this,'page_tracking'),999999);
+		add_action('wp_footer', array($this,'page_tracking_new'),999999);
 		add_action( 'wp_enqueue_scripts', array($this,'written_styles') ,1);
 
 		if(get_option('wtt_plugin_version_number') != $this->version)
@@ -51,7 +52,7 @@ class Written_Licensing_Plugin {
 	* Finally, redirect the user to the Written options panel upon activation.
 	*/
 	public function activate() {
-		$written_api = new Written_API_Endpoint();
+		
 		remove_role('wtt_user');
 		$result = add_role(
 			'wtt_user',
@@ -71,14 +72,7 @@ class Written_Licensing_Plugin {
 				'edit_published_pages' => false,
 				'upload_files' => false,
 			)
-		);
-
-		if(is_admin()) {
-			$written_api->add_endpoint();
-			flush_rewrite_rules();
-		}
-		
-
+		);	
 
 		add_option('wtt_plugin_do_activation_redirect',true);
 		update_option('wtt_plugin_version_number',$this->version);
@@ -155,7 +149,7 @@ class Written_Licensing_Plugin {
 	*/
 	public function page_tracking() {
 
-		if(get_option('wtt_tracking_id')):
+		if(get_option('wtt_tracking_id') && get_option('wtt_analytics_2') != true):
 
 	?>
 
@@ -172,6 +166,32 @@ class Written_Licensing_Plugin {
 	    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
 	    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
 	  })();
+	</script>
+
+	<?php
+
+		endif;
+	}
+
+	/**
+	* This checks to see if the Written API has stored the option to output Written Analytics 2.0. To output the new Written analytics, option wtt_analytics_2 should be set to true;
+	*/
+	public function page_tracking_new() {
+
+		if(get_option('wtt_analytics_2') == true):
+
+	?>
+
+	<!-- Written.com Tracker -->
+	<script type="text/javascript">
+		(function() {
+			var wa = document.createElement('script');
+			wa.type = 'text/javascript';
+			wa.defer = true; wa.async = true;
+			wa.src = "https://d3dcugpvnepf41.cloudfront.net/written-analytics.js";
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(wa, s);
+		})();
 	</script>
 
 	<?php
@@ -254,16 +274,20 @@ class Written_Licensing_Plugin {
 		}
 
 
+		$written_api = new Written_API_Endpoint();
+		$written_api->add_endpoint();
+		flush_rewrite_rules();
 		
 		$request = wp_remote_post( WTT_API.'blogs/plugin_install', array(
 			'method' => 'POST',
+			'sslverify' => false,
 			'body' => $data
 		));
 
 
 
 		if(is_wp_error($request))
-			return 'error';
+			return $request->get_error_message();
 		
 		/* maybe need more error handling here */
 		$response = json_decode($request['body']);
@@ -275,7 +299,7 @@ class Written_Licensing_Plugin {
 	 	}
 
 
-	 	return 'error';
+	 	return 'Something went wrong.  Please try again.';
 	 	
 	}
 

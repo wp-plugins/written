@@ -141,19 +141,42 @@ class Written_API_Endpoint {
 		$plugin_info['written_user_id'] = get_option("wtt_user_id");
 		$plugin_info['wp_version'] = $version;
 		$plugin_info['piwik_id'] = get_option('wtt_tracking_id');
+		$plugin_info['wtt_analytics_2'] = get_option('wtt_analytics_2');
 
 
 		$this->send_response('success',$plugin_info);
 
 	}
 
+	/**
+	* This method updates the two analytics options
+	* First option: wtt_tracking_id.  This should be the piwik ID, or be empty.
+	* Second option: wtt_analytics_2.  This should be true or false.  If true, track.written is outputted.
+	*/
+	protected function analytics() {
+
+		$piwik_id = $_POST['piwik_id'];
+
+		if($piwik_id == 'delete')
+			delete_option('wtt_tracking_id');
+		elseif(isset($piwik_id))
+			update_option('wtt_tracking_id',$piwik_id);
+
+
+		$wtt_analytics = $_POST['analytics_beta'];
+
+		if(isset($wtt_analytics))
+			update_option('wtt_analytics_2',$wtt_analytics);
+
+
+		$this->send_response('success',array('wtt_analytics_2' => get_option('wtt_analytics_2'),'wtt_tracking_id' => get_option('wtt_tracking_id')));
+
+	}
 
 	/**
 	* This method returns the total number of posts and pages.
 	*/
 	protected function count_posts() {
-		$username		= $args[0];
-		$password		= $args[1];
 
 		$published_posts = wp_count_posts()->publish;
 		$published_pages = wp_count_posts('page')->publish;

@@ -22,16 +22,15 @@ function wtt_display_settings(){
 
 				switch($send_auth) {
 
-					case 'error':
-
-						echo '<div id="setting-error-settings_updated" class="error settings-error"> <p><strong>Something went wrong.  Please try again.</strong></p></div>';
-
-					break;
-
-
 					case 'success':
 
 						echo '<div id="setting-error-settings_updated" class="updated settings-error"> <p><strong>Success!  Your plugin has been installed.  Please clear the cache on your blog.</strong></p></div>';
+
+					break;
+
+					default:
+
+						echo '<div id="setting-error-settings_updated" class="error settings-error"> <p><strong>'.$send_auth.'</strong></p></div>';
 
 					break;
 				}
@@ -54,7 +53,7 @@ function wtt_display_settings(){
 
 		<?php if(get_option('wtt_email') || $send_auth == 'success'): ?>
 
-		<p><strong>Your blog is connected to Written!  You can login to your Written account at <a href="http://app.written.com">http://app.written.com</a>.<br /><br />Your login email is <?php echo get_option('wtt_email'); ?>.</strong></p>
+		<p><strong>Your blog is connected to Written!  You can login to your Written account at <a href="https://written.com/login">https://written.com/login</a>.<br /><br />Your login email is <?php echo get_option('wtt_email'); ?>.</strong></p>
 
 		<div style="display: inline">
 		<?php submit_button('Resync with Written');  ?>
@@ -82,7 +81,7 @@ function wtt_display_settings(){
 		</table>
 		<?php submit_button('Connect to Written');  ?>
 
-		<p><small><a href="http://written.com/bloggers/" target="_blank">What is Written?</a></small></p>
+		<p><small><a href="https://written.com/bloggers/" target="_blank">What is Written?</a></small></p>
 		<?php endif; ?>		
 	</form>
 </div>
