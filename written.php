@@ -292,10 +292,9 @@ class Written_Licensing_Plugin {
 		/* maybe need more error handling here */
 		$response = json_decode($request['body']);
 	 	
-	 	if($response->analytics_id) {
-	 		update_option('wtt_tracking_id',$response->analytics_id);
+	 	if($response->status == 'success') {
 			update_option('wtt_email',$response->blog_user_email);
-			return 'success';		
+			return 'success';	
 	 	}
 
 
