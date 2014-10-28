@@ -1,6 +1,5 @@
 <?php
 
-
 /**
 * This is the content and traffic license functionality.
 * http://written.com/content-licensing/
@@ -17,7 +16,9 @@ function wtt_redirect_license(){
 			/* make sure there is no cache being generated on these pages so that the redirect stays put */
 
 			if($redirect_url) {
+				
 				define('DONOTCACHEPAGE',true);
+
 				global $hyper_cache_stop;
 
 				$hyper_cache_stop = true;
@@ -32,64 +33,77 @@ function wtt_redirect_license(){
 		}
 	}	
 }
-add_action('template_redirect', 'wtt_redirect_license');
+add_action('template_redirect', 'wtt_redirect_license',1);
 
 
 /**
-* This is a legacy function.  We should be able to remove this in a future release.
-* This function uses the old custom field naming convention that we used in V1 of the plugin.
-* Be careful removing this as it could break old licenses.  Check with Connor before removing.
+* This function migrates posts from the old custom field license structure to the new.
 * ------
-* This is the content and traffic license functionality.
-* http://written.com/content-licensing/
+* We should be able to delete this once all bloggers are on plugin V 2.5+
 */
 function wtt_redirect_license_legacy(){
 	global $post;
 
 	if(is_singular()){
-		$redirect_url = get_post_meta($post->ID, 'wtt_redirect', true);
-		if($redirect_url){ 
-			
-			define('DONOTCACHEPAGE',true);
-			global $hyper_cache_stop;
-			$hyper_cache_stop = true;
 
-			if(get_post_meta($post->ID,'wtt_redirect_temp')) {
-				wp_redirect($redirect_url, 302); 
-			} else {
-				wp_redirect($redirect_url, 301); 
-			}
-			
+		if(get_post_meta($post->ID, 'wtt_redirect', true)) {
+
+			$redirect_url = get_post_meta($post->ID, 'wtt_redirect', true);
+
+			update_post_meta($post->ID,'_wtt_license_type','1');
+			update_post_meta($post->ID,'_wtt_redirect_location',$redirect_url);
+			delete_post_meta($post->ID,'wtt_redirect');
+
 
 		}
+
 	}	
 }
 add_action('template_redirect', 'wtt_redirect_license_legacy');
 
-/* Everything below is legacy and can be removed on a future release.  Consult with Connor. */
+
+
 function wtt_guest_author_name( $name ) {
 	global $post;
 
-	$author = get_post_meta( $post->ID, 'wtt_custom_author', true );
+	if($post->post_author == get_option('wtt_user_id')) {
+		
+		$author = get_post_meta( $post->ID, '_wtt_author_name', true );
 
-	if ( $author )
-	$name = $author;
 
-	return $name;
+		if($author)
+			return $author;
+
+		return 'Guest Author';
+
+	} else {
+
+		return $name;
+	}
+
 }
 
 function wtt_guest_author_url($url) {
 	global $post;
 
-	$guest_url = get_post_meta( $post->ID, 'wtt_author_url', true );
+	if($post->post_author == get_option('wtt_user_id')) {
 
-	if ( $guest_url!=='' ) {
-		return $guest_url;
-	} elseif ( get_post_meta( $post->ID, 'wtt_custom_author', true ) ) {
-		return '#';
+		$guest_url = get_post_meta( $post->ID, '_wtt_authorrank_url', true );
+
+
+		if($guest_url) {
+			return $guest_url;
+		} else {
+			return $url;
+		}
+
+	} else {
+
+		return $url;
+
 	}
+	
 
-	return $url;
 }
 
 
