@@ -48,7 +48,7 @@ class Written_Licensing_Plugin {
 	* This the Written.com activation process.
 	* In this activation process, a role called Written User is created.
 	* This user allows us to interact with only the posts that you choose to license through Written.
-	* This also remove any previously added API key.
+	* This also remove any previously added API key.  API key not needed.
 	* Finally, redirect the user to the Written options panel upon activation.
 	*/
 	public function activate() {
