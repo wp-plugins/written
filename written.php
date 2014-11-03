@@ -3,18 +3,18 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 3.0.3
+Version: 3.0.4
 Author: Written.com
 Author URI: http://www.written.com
 */
 
-define("WTT_API", "https://written.com/", true);
+define("WTT_API", "http://written.com/", true);
 define("WTT_EMAIL", "api@written.com", true);
 define("WTT_USER", "writtenapi_", true);
 
 class Written_Licensing_Plugin {
 
-	var $version = '3.0.3';
+	var $version = '3.0.4';
 
 	public function bootstrap() {
 		/* Written Options Panel */
@@ -48,7 +48,7 @@ class Written_Licensing_Plugin {
 	* This the Written.com activation process.
 	* In this activation process, a role called Written User is created.
 	* This user allows us to interact with only the posts that you choose to license through Written.
-	* This also remove any previously added API key.
+	* This also remove any previously added API key.  API key not needed.
 	* Finally, redirect the user to the Written options panel upon activation.
 	*/
 	public function activate() {
