@@ -1,9 +1,9 @@
 === Written ===
 Tags: plugin, content marketing, monetization, written, written.com, content, marketing, licensing
 Contributors: written
-Tested up to: 4.0
+Tested up to: 4.1
 Requires at least: 3.5
-Stable Tag: 3.0.4
+Stable Tag: 3.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,3 +23,9 @@ Written values great content. We help brands build and target an audience for th
 3. Activate the Written plugin.
 
 4. On the Written settings page of your WordPress admin, enter in your email address and click "Sync with Written"
+
+
+== Changelog ==
+
+= 3.0.5 =
+* Added a fix that clears out cache on blogs that use W3TC Cache Plugin
