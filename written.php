@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 3.0.5
+Version: 3.0.6
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -14,7 +14,7 @@ define("WTT_USER", "writtenapi_", true);
 
 class Written_Licensing_Plugin {
 
-	var $version = '3.0.5';
+	var $version = '3.0.6';
 
 	public function bootstrap() {
 		/* Written Options Panel */
@@ -34,8 +34,6 @@ class Written_Licensing_Plugin {
 		add_action('admin_menu', array($this,'plugin_settings'));
 		add_action('init',array($this,'register_meta'));
 		add_action('admin_init', array($this,'plugin_redirect'));
-		add_action('wp_footer', array($this,'page_tracking'),999999);
-		add_action('wp_footer', array($this,'page_tracking_new'),999999);
 		add_action( 'wp_enqueue_scripts', array($this,'written_styles') ,1);
 
 		if(get_option('wtt_plugin_version_number') != $this->version)
@@ -143,61 +141,6 @@ class Written_Licensing_Plugin {
 		}
 	}
 	
-
-	/**
-	* This checks to see if the Written API has stored the analytics tracking ID in the options table.  If so, we output the Written.com tracking analytics.
-	*/
-	public function page_tracking() {
-
-		if(get_option('wtt_tracking_id') && get_option('wtt_analytics_2') != 'true'):
-
-	?>
-
-	<!-- Written.com Tracker -->
-	<script type="text/javascript">
-	  var _paq = _paq || [];
-	  _paq.push(["trackPageView"]);
-	  _paq.push(["enableLinkTracking"]);
-
-	  (function() {
-	    var u=(("https:" == document.location.protocol) ? "https" : "http") + "://analytics.written.com/";
-	    _paq.push(["setTrackerUrl", u+"piwik.php"]);
-	    _paq.push(["setSiteId", "<?php echo get_option('wtt_tracking_id'); ?>"]);
-	    var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
-	    g.defer=true; g.async=true; g.src=u+"piwik.js"; s.parentNode.insertBefore(g,s);
-	  })();
-	</script>
-
-	<?php
-
-		endif;
-	}
-
-	/**
-	* This checks to see if the Written API has stored the option to output Written Analytics 2.0. To output the new Written analytics, option wtt_analytics_2 should be set to true;
-	*/
-	public function page_tracking_new() {
-
-		if(get_option('wtt_analytics_2') == 'true'):
-
-	?>
-
-	<!-- Written.com Tracker -->
-	<script type="text/javascript">
-		(function() {
-			var wa = document.createElement('script');
-			wa.type = 'text/javascript';
-			wa.defer = true; wa.async = true;
-			wa.src = "https://d3dcugpvnepf41.cloudfront.net/written-analytics.js";
-			var s = document.getElementsByTagName('script')[0];
-			s.parentNode.insertBefore(wa, s);
-		})();
-	</script>
-
-	<?php
-
-		endif;
-	}
 
 	/**
 	* This adds the Written takeover stylesheet to the head of all pages.
