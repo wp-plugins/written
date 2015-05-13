@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 3.0.6
+Version: 3.0.7
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -14,7 +14,10 @@ define("WTT_USER", "writtenapi_", true);
 
 class Written_Licensing_Plugin {
 
-	var $version = '3.0.6';
+	var $version = '3.0.7';
+
+	var $redirect_key = 'wtt_plugin_do_activation_redirect';
+	var $plugin_version_key = 'wtt_plugin_version_number';
 
 	public function bootstrap() {
 		/* Written Options Panel */
@@ -36,8 +39,11 @@ class Written_Licensing_Plugin {
 		add_action('admin_init', array($this,'plugin_redirect'));
 		add_action( 'wp_enqueue_scripts', array($this,'written_styles') ,1);
 
-		if(get_option('wtt_plugin_version_number') != $this->version)
+		if(get_option( $this->plugin_version_key ) != $this->version)
+		{
 			$this->activate();
+		}
+			
 
 		$written_api = new Written_API_Endpoint();
 	}
@@ -72,8 +78,8 @@ class Written_Licensing_Plugin {
 			)
 		);	
 
-		add_option('wtt_plugin_do_activation_redirect',true);
-		update_option('wtt_plugin_version_number',$this->version);
+		add_option( $this->redirect_key ,true);
+		update_option($this->plugin_version_key ,$this->version);
 	}
 
 	/**
@@ -86,7 +92,7 @@ class Written_Licensing_Plugin {
 		delete_option('wtt_tracking_id');
 		delete_option('wtt_api_key');
 		delete_option('wtt_email');
-		delete_option('wtt_plugin_version_number');
+		delete_option( $this->plugin_version_key );
 	}
 
 
@@ -135,9 +141,10 @@ class Written_Licensing_Plugin {
 	*/
 	public function plugin_redirect() {
 
-		if(get_option('wtt_plugin_do_activation_redirect')) {
+		if(get_option( $this->redirect_key ))
+		{
+			delete_option( $this->redirect_key );
 			wp_redirect(admin_url('admin.php?page=written_settings'));
-			delete_option('wtt_plugin_do_activation_redirect');
 		}
 	}
 	

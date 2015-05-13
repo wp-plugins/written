@@ -3,7 +3,7 @@ Tags: plugin, content marketing, monetization, written, written.com, content, ma
 Contributors: written
 Tested up to: 4.2
 Requires at least: 3.5
-Stable Tag: 3.0.6
+Stable Tag: 3.0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,11 @@ Written values great content. We help brands build and target an audience for th
 
 
 == Changelog ==
+
+= 3.0.7 =
+* Fix redirect issue on plugin update
+* Fix the login link on the Written settings page
+* Remove incorrect include of wp-load.php for AdBuyout licenses
 
 = 3.0.6 =
 * Remove all JavaScript
