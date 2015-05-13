@@ -53,7 +53,7 @@ function wtt_display_settings(){
 
 		<?php if(get_option('wtt_email') || $send_auth == 'success'): ?>
 
-		<p><strong>Your blog is connected to Written!  You can login to your Written account at <a href="https://written.com/login">https://written.com/login</a>.<br /><br />Your login email is <?php echo get_option('wtt_email'); ?>.</strong></p>
+		<p><strong>Your blog is connected to Written!  You can login to your Written account at <a href="https://written.com/auth/login">https://written.com/auth/login</a>.<br /><br />Your login email is <?php echo get_option('wtt_email'); ?>.</strong></p>
 
 		<div style="display: inline">
 		<?php submit_button('Resync with Written');  ?>
