@@ -13,10 +13,12 @@ function wtt_redirect_license(){
 		if($license_type == '1' || $license_type == '4'){ //1=301,4=302 
 				
 			$redirect_url = get_post_meta($post->ID, '_wtt_redirect_location', true);
+			
 			/* make sure there is no cache being generated on these pages so that the redirect stays put */
-
 			if($redirect_url) {
-				
+					
+				wtt_w3tc_force_cache_empty();
+
 				define('DONOTCACHEPAGE',true);
 
 				global $hyper_cache_stop;
@@ -34,6 +36,27 @@ function wtt_redirect_license(){
 	}	
 }
 add_action('template_redirect', 'wtt_redirect_license',1);
+
+
+/**
+* This function clears out the annoying .old file that the W3TC plugin developers forgot to delete.
+*/
+function wtt_w3tc_force_cache_empty() {
+ 	
+ 	if(defined('W3TC_CACHE_PAGE_ENHANCED_DIR'))
+ 	{
+ 		$cache_route = W3TC_CACHE_PAGE_ENHANCED_DIR.'/'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'].'_index.html.old';
+
+ 		if(file_exists($cache_route)) unlink($cache_route);
+ 	}
+	
+ 	if(defined('W3TC_CACHE_PAGE_ENHANCED_DIR'))
+ 	{
+ 		$cache_route_2 = W3TC_CACHE_PAGE_ENHANCED_DIR.'/'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'].'_index.html_gzip.old';
+
+ 		if(file_exists($cache_route_2)) unlink($cache_route_2);
+ 	}
+}
 
 
 /**

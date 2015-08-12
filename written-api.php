@@ -186,6 +186,7 @@ class Written_API_Endpoint {
 
 	}
 
+
 	/**
 	* This method updates XMLRPC auth on Written api
 	*/
@@ -498,8 +499,11 @@ class Written_API_Endpoint {
 		$posts = get_posts($_REQUEST['args']);
 
 		if($posts)
-			foreach($posts as $post)
+			foreach($posts as $post) {
 				$post->processed_content = do_shortcode( wpautop($post->post_content) );
+				$post->permalink = get_permalink($post->ID);
+			}
+				
 
 
 		if($posts)
