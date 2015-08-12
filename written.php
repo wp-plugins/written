@@ -3,7 +3,7 @@
 Plugin Name: Written
 Plugin URI: http://www.written.com/
 Description: Plugin for Advertisers and Publishers.
-Version: 3.0.7
+Version: 3.0.8
 Author: Written.com
 Author URI: http://www.written.com
 */
@@ -14,7 +14,7 @@ define("WTT_USER", "writtenapi_", true);
 
 class Written_Licensing_Plugin {
 
-	var $version = '3.0.7';
+	var $version = '3.0.8';
 
 	var $redirect_key = 'wtt_plugin_do_activation_redirect';
 	var $plugin_version_key = 'wtt_plugin_version_number';

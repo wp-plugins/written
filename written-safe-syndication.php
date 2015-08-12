@@ -27,5 +27,5 @@ function wtt_rel_canonical(){
 	echo "<link rel='canonical' href='$link' />\n";
 
 }
-remove_action( 'wp_head', 'rel_canonical' );
-add_action( 'wp_head', 'wtt_rel_canonical' ,1);
+//remove_action( 'wp_head', 'rel_canonical' );
+//add_action( 'wp_head', 'wtt_rel_canonical' ,1);
